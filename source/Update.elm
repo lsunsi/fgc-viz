@@ -41,7 +41,7 @@ update msg model =
             case ( dateResult, rateResult ) of
                 ( Ok date, Ok rate ) ->
                     { model
-                        | interests = withInterest (Interest date rate)
+                        | interests = withInterest (Interest date (rate / 100))
                         , interestFormDate = ""
                         , interestFormRate = ""
                     }

@@ -86,8 +86,8 @@ interestFormSubmitted =
                     model1 =
                         { model0
                             | interests =
-                                [ Interest (Date.fromCalendarDate 2018 Date.Jan 10) 1.2
-                                , Interest (Date.fromCalendarDate 2018 Date.Jan 12) 1.2
+                                [ Interest (Date.fromCalendarDate 2018 Date.Jan 10) 1.205
+                                , Interest (Date.fromCalendarDate 2018 Date.Jan 12) 1.205
                                 ]
                             , interestFormDate = ""
                             , interestFormRate = ""
@@ -96,26 +96,26 @@ interestFormSubmitted =
                     model2 =
                         { model1
                             | interests =
-                                [ Interest (Date.fromCalendarDate 2018 Date.Jan 10) 1.2
-                                , Interest (Date.fromCalendarDate 2018 Date.Jan 11) 1.2
-                                , Interest (Date.fromCalendarDate 2018 Date.Jan 12) 1.2
+                                [ Interest (Date.fromCalendarDate 2018 Date.Jan 10) 1.205
+                                , Interest (Date.fromCalendarDate 2018 Date.Jan 11) 1.205
+                                , Interest (Date.fromCalendarDate 2018 Date.Jan 12) 1.205
                                 ]
                         }
                 in
                 model1
                     |> (update (InterestFormDateInput "2018-01-11") >> first)
-                    |> (update (InterestFormRateInput "1.2") >> first)
+                    |> (update (InterestFormRateInput "120.5") >> first)
                     |> update InterestFormSubmitted
                     |> equal (model2 ! [])
         , test "performs no operation when date input is invalid" <|
             \() ->
                 let
                     model1 =
-                        { model0 | interestFormDate = "invalid", interestFormRate = "1.2" }
+                        { model0 | interestFormDate = "invalid", interestFormRate = "120.5" }
                 in
                 model0
                     |> (update (InterestFormDateInput "invalid") >> first)
-                    |> (update (InterestFormRateInput "1.2") >> first)
+                    |> (update (InterestFormRateInput "120.5") >> first)
                     |> update InterestFormSubmitted
                     |> equal (model1 ! [])
         , test "performs no operation when rate input is invalid" <|
