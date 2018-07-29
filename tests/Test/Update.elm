@@ -131,3 +131,30 @@ interestFormSubmitted =
                     |> update InterestFormSubmitted
                     |> equal (model1 ! [])
         ]
+
+
+interestDoubleClicked : Test
+interestDoubleClicked =
+    test "removes index from the interests list and persists model" <|
+        \() ->
+            let
+                model1 =
+                    { model0
+                        | interests =
+                            [ Interest (Date.fromCalendarDate 2018 Date.Jan 10) 1.2
+                            , Interest (Date.fromCalendarDate 2019 Date.Feb 11) 1.3
+                            , Interest (Date.fromCalendarDate 2020 Date.Mar 12) 1.4
+                            ]
+                    }
+
+                model2 =
+                    { model1
+                        | interests =
+                            [ Interest (Date.fromCalendarDate 2018 Date.Jan 10) 1.2
+                            , Interest (Date.fromCalendarDate 2020 Date.Mar 12) 1.4
+                            ]
+                    }
+            in
+            model1
+                |> update (InterestDoubleClicked 1)
+                |> equal (model2 ! [ storeModel (encodeModel model2) ])

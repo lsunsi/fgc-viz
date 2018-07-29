@@ -2,6 +2,7 @@ module Update exposing (Msg(..), update)
 
 import Date.Extra as Date
 import Json.Encode exposing (Value)
+import List.Extra as List
 import Model exposing (Interest, Model)
 import Storage exposing (decodeModel, encodeModel, storeModel)
 
@@ -11,6 +12,7 @@ type Msg
     | InterestFormDateInput String
     | InterestFormRateInput String
     | InterestFormSubmitted
+    | InterestDoubleClicked Int
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -52,3 +54,10 @@ update msg model =
 
                 _ ->
                     model ! []
+
+        InterestDoubleClicked i ->
+            let
+                newModel =
+                    { model | interests = List.removeAt i model.interests }
+            in
+            newModel ! [ storeModel (encodeModel newModel) ]

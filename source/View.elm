@@ -2,9 +2,9 @@ module View exposing (view)
 
 import Html exposing (Html, button, div, input, table, tbody, td, text, th, thead, tr)
 import Html.Attributes exposing (class, id, placeholder, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (onClick, onDoubleClick, onInput)
 import Model exposing (Model)
-import Update exposing (Msg(InterestFormDateInput, InterestFormRateInput, InterestFormSubmitted))
+import Update exposing (Msg(InterestDoubleClicked, InterestFormDateInput, InterestFormRateInput, InterestFormSubmitted))
 import View.Helpers.Format as Format
 
 
@@ -18,12 +18,12 @@ interestTableHeader =
         ]
 
 
-interestTableBody : Model -> Html msg
+interestTableBody : Model -> Html Msg
 interestTableBody { interests } =
     tbody []
-        (List.map
-            (\{ date, rate } ->
-                tr []
+        (List.indexedMap
+            (\i { date, rate } ->
+                tr [ onDoubleClick (InterestDoubleClicked i) ]
                     [ td [] [ text (Format.date date) ]
                     , td [] [ text (Format.percentage rate) ]
                     ]
@@ -32,7 +32,7 @@ interestTableBody { interests } =
         )
 
 
-interestTable : Model -> Html msg
+interestTable : Model -> Html Msg
 interestTable model =
     table [ class "table", id "interests-table" ]
         [ interestTableHeader
