@@ -11,4 +11,6 @@ type alias Interest =
 
 type alias Model =
     { interests : List Interest
+    , interestFormDate : String
+    , interestFormRate : String
     }

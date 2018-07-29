@@ -22,9 +22,11 @@ encodeInterest { date, rate } =
 
 
 encodeModel : Model -> Encode.Value
-encodeModel { interests } =
+encodeModel { interests, interestFormDate, interestFormRate } =
     Encode.object
         [ ( "interests", Encode.list (List.map encodeInterest interests) )
+        , ( "interestFormDate", Encode.string interestFormDate )
+        , ( "interestFormRate", Encode.string interestFormRate )
         ]
 
 
@@ -39,6 +41,8 @@ decoderModel : Decode.Decoder Model
 decoderModel =
     decode Model
         |> required "interests" (Decode.list decoderInterest)
+        |> required "interestFormDate" Decode.string
+        |> required "interestFormRate" Decode.string
 
 
 decodeModel : Encode.Value -> Maybe Model
