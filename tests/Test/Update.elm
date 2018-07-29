@@ -5,7 +5,7 @@ import Date.Extra as Date
 import Expect exposing (equal)
 import Init exposing (init)
 import Json.Encode as Encode
-import Model exposing (Interest, Model)
+import Model exposing (Asset, Interest, Model)
 import Storage exposing (encodeModel, storeModel)
 import Test exposing (Test, describe, test)
 import Tuple exposing (first)
@@ -30,12 +30,22 @@ modelRetrieved =
                   )
                 , ( "interestFormDate", Encode.string "some-date" )
                 , ( "interestFormRate", Encode.string "some-rate" )
+                , ( "assets"
+                  , Encode.list
+                        [ Encode.object
+                            [ ( "maturity", Encode.float 1595991600000 )
+                            , ( "amount", Encode.float 10000.0 )
+                            , ( "yield", Encode.float 1.145 )
+                            ]
+                        ]
+                  )
                 ]
 
         model =
             { interests = [ Interest (Date.fromCalendarDate 2018 Date.Jul 29) 1.23 ]
             , interestFormDate = "some-date"
             , interestFormRate = "some-rate"
+            , assets = [ Asset (Date.fromCalendarDate 2020 Date.Jul 29) 10000.0 1.145 ]
             }
     in
     describe "ModelRetrived"

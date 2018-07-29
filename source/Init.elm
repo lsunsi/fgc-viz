@@ -8,5 +8,6 @@ init =
     { interests = []
     , interestFormDate = ""
     , interestFormRate = ""
+    , assets = []
     }
         ! []

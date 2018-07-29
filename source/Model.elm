@@ -9,8 +9,16 @@ type alias Interest =
     }
 
 
+type alias Asset =
+    { maturity : Date
+    , amount : Float
+    , yield : Float
+    }
+
+
 type alias Model =
     { interests : List Interest
     , interestFormDate : String
     , interestFormRate : String
+    , assets : List Asset
     }
