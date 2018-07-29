@@ -1,6 +1,9 @@
 module Subscriptions exposing (subscriptions)
 
+import Storage exposing (retrieveModel)
+import Update exposing (Msg(ModelRetrieved))
 
-subscriptions : model -> Sub msg
+
+subscriptions : model -> Sub Msg
 subscriptions _ =
-    Sub.none
+    retrieveModel ModelRetrieved

@@ -8,5 +8,14 @@
 
 <body>
     <script src="index.js"></script>
-    <script>Elm.Main.fullscreen()</script>
+    <script>
+        const app = Elm.Main.fullscreen()
+
+        function installStoragePorts({ storeModel, retrieveModel }, storage, key = 'bak') {
+            storeModel.subscribe(data => storage.setItem(key, JSON.stringify(data)))
+            retrieveModel.send((data = storage.getItem(key)) && JSON.parse(data))
+        }
+
+        installStoragePorts(app.ports, window.localStorage)
+    </script>
 </body>

@@ -1,8 +1,16 @@
-module Update exposing (update)
+module Update exposing (Msg(..), update)
 
+import Json.Encode exposing (Value)
 import Model exposing (Model)
+import Storage exposing (decodeModel)
 
 
-update : msg -> Model -> ( Model, Cmd msg )
-update _ model =
-    model ! []
+type Msg
+    = ModelRetrieved Value
+
+
+update : Msg -> Model -> ( Model, Cmd msg )
+update msg model =
+    case msg of
+        ModelRetrieved value ->
+            Maybe.withDefault model (decodeModel value) ! []
