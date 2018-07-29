@@ -6,6 +6,7 @@ import Expect exposing (equal)
 import Init exposing (init)
 import Json.Encode as Encode
 import Model exposing (Interest, Model)
+import Storage exposing (encodeModel, storeModel)
 import Test exposing (Test, describe, test)
 import Tuple exposing (first)
 import Update exposing (Msg(..), update)
@@ -106,7 +107,7 @@ interestFormSubmitted =
                     |> (update (InterestFormDateInput "2018-01-11") >> first)
                     |> (update (InterestFormRateInput "120.5") >> first)
                     |> update InterestFormSubmitted
-                    |> equal (model2 ! [])
+                    |> equal (model2 ! [ storeModel (encodeModel model2) ])
         , test "performs no operation when date input is invalid" <|
             \() ->
                 let

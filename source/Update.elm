@@ -3,7 +3,7 @@ module Update exposing (Msg(..), update)
 import Date.Extra as Date
 import Json.Encode exposing (Value)
 import Model exposing (Interest, Model)
-import Storage exposing (decodeModel)
+import Storage exposing (decodeModel, encodeModel, storeModel)
 
 
 type Msg
@@ -40,12 +40,15 @@ update msg model =
             in
             case ( dateResult, rateResult ) of
                 ( Ok date, Ok rate ) ->
-                    { model
-                        | interests = withInterest (Interest date (rate / 100))
-                        , interestFormDate = ""
-                        , interestFormRate = ""
-                    }
-                        ! []
+                    let
+                        newModel =
+                            { model
+                                | interests = withInterest (Interest date (rate / 100))
+                                , interestFormDate = ""
+                                , interestFormRate = ""
+                            }
+                    in
+                    newModel ! [ storeModel (encodeModel newModel) ]
 
                 _ ->
                     model ! []
