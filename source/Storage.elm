@@ -36,12 +36,15 @@ encodeAsset { maturity, amount, yield } =
 
 
 encodeModel : Model -> Encode.Value
-encodeModel { interests, interestFormDate, interestFormRate, assets } =
+encodeModel model =
     Encode.object
-        [ ( "interests", Encode.list (List.map encodeInterest interests) )
-        , ( "interestFormDate", Encode.string interestFormDate )
-        , ( "interestFormRate", Encode.string interestFormRate )
-        , ( "assets", Encode.list (List.map encodeAsset assets) )
+        [ ( "interests", Encode.list (List.map encodeInterest model.interests) )
+        , ( "interestFormDate", Encode.string model.interestFormDate )
+        , ( "interestFormRate", Encode.string model.interestFormRate )
+        , ( "assets", Encode.list (List.map encodeAsset model.assets) )
+        , ( "assetFormMaturity", Encode.string model.assetFormMaturity )
+        , ( "assetFormAmount", Encode.string model.assetFormAmount )
+        , ( "assetFormYield", Encode.string model.assetFormYield )
         ]
 
 
@@ -72,6 +75,9 @@ decoderModel =
         |> required "interestFormDate" Decode.string
         |> required "interestFormRate" Decode.string
         |> required "assets" (Decode.list decoderAsset)
+        |> required "assetFormMaturity" Decode.string
+        |> required "assetFormAmount" Decode.string
+        |> required "assetFormYield" Decode.string
 
 
 decodeModel : Encode.Value -> Maybe Model

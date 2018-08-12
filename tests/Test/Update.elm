@@ -39,6 +39,9 @@ modelRetrieved =
                             ]
                         ]
                   )
+                , ( "assetFormMaturity", Encode.string "some-maturity" )
+                , ( "assetFormAmount", Encode.string "some-amount" )
+                , ( "assetFormYield", Encode.string "some-yield" )
                 ]
 
         model =
@@ -46,6 +49,9 @@ modelRetrieved =
             , interestFormDate = "some-date"
             , interestFormRate = "some-rate"
             , assets = [ Asset (Date.fromCalendarDate 2020 Date.Jul 29) 10000.0 1.145 ]
+            , assetFormMaturity = "some-maturity"
+            , assetFormAmount = "some-amount"
+            , assetFormYield = "some-yield"
             }
     in
     describe "ModelRetrived"

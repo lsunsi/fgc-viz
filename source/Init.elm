@@ -9,5 +9,8 @@ init =
     , interestFormDate = ""
     , interestFormRate = ""
     , assets = []
+    , assetFormMaturity = ""
+    , assetFormAmount = ""
+    , assetFormYield = ""
     }
         ! []

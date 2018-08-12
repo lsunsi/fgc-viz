@@ -21,4 +21,7 @@ type alias Model =
     , interestFormDate : String
     , interestFormRate : String
     , assets : List Asset
+    , assetFormMaturity : String
+    , assetFormAmount : String
+    , assetFormYield : String
     }
