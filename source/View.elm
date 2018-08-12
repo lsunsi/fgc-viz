@@ -58,10 +58,45 @@ interestForm { interestFormDate, interestFormRate } =
         ]
 
 
+assetsTableHeader : Html msg
+assetsTableHeader =
+    thead []
+        [ tr []
+            [ th [] [ text "Yield" ]
+            , th [] [ text "Amount" ]
+            , th [] [ text "Maturity" ]
+            ]
+        ]
+
+
+assetsTableBody : Model -> Html msg
+assetsTableBody { assets } =
+    tbody []
+        (List.indexedMap
+            (\i { maturity, amount, yield } ->
+                tr []
+                    [ td [] [ text (Format.date maturity) ]
+                    , td [] [ text (Format.number amount) ]
+                    , td [] [ text (Format.percentage yield) ]
+                    ]
+            )
+            assets
+        )
+
+
+assetsTable : Model -> Html Msg
+assetsTable model =
+    table [ class "table", id "assets-table" ]
+        [ assetsTableHeader
+        , assetsTableBody model
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div []
         [ text "oie"
         , interestTable model
         , interestForm model
+        , assetsTable model
         ]

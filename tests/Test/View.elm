@@ -5,7 +5,7 @@ import Date.Extra as Date
 import Expect exposing (all)
 import Html.Attributes exposing (value)
 import Init exposing (init)
-import Model exposing (Interest, Model)
+import Model exposing (Asset, Interest, Model)
 import Test exposing (Test, describe, test)
 import Test.Html.Query exposing (find, findAll, fromHtml, has, index)
 import Test.Html.Selector exposing (attribute, id, tag, text)
@@ -82,4 +82,35 @@ interestForm =
                 form
                     |> find [ tag "button" ]
                     |> has [ text "Add" ]
+        ]
+
+
+assetsTable : Test
+assetsTable =
+    let
+        table =
+            { model0 | assets = [ Asset (Date.fromCalendarDate 2018 Date.Jan 11) 1234.56 7.8 ] }
+                |> view
+                |> fromHtml
+                |> find [ id "assets-table" ]
+    in
+    describe "assets table"
+        [ test "shows header with proper column names" <|
+            \() ->
+                table
+                    |> find [ tag "thead" ]
+                    |> all
+                        [ has [ text "Maturity" ]
+                        , has [ text "Amount" ]
+                        , has [ text "Yield" ]
+                        ]
+        , test "shows properly formatted interest on the body" <|
+            \() ->
+                table
+                    |> find [ tag "tbody" ]
+                    |> all
+                        [ has [ text "2018-01-11" ]
+                        , has [ text "1,234.56" ]
+                        , has [ text "780.00%" ]
+                        ]
         ]
