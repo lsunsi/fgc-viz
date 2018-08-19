@@ -3,7 +3,7 @@ module Update exposing (Msg(..), update)
 import Date.Extra as Date
 import Json.Encode exposing (Value)
 import List.Extra as List
-import Model exposing (Interest, Model)
+import Model exposing (Asset, Interest, Model)
 import Storage exposing (decodeModel, encodeModel, storeModel)
 
 
@@ -13,6 +13,11 @@ type Msg
     | InterestFormRateInput String
     | InterestFormSubmitted
     | InterestDoubleClicked Int
+    | AssetFormMaturityInput String
+    | AssetFormAmountInput String
+    | AssetFormYieldInput String
+    | AssetFormSubmitted
+    | AssetDoubleClicked Int
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -59,5 +64,53 @@ update msg model =
             let
                 newModel =
                     { model | interests = List.removeAt i model.interests }
+            in
+            newModel ! [ storeModel (encodeModel newModel) ]
+
+        AssetFormMaturityInput str ->
+            { model | assetFormMaturity = str } ! []
+
+        AssetFormAmountInput str ->
+            { model | assetFormAmount = str } ! []
+
+        AssetFormYieldInput str ->
+            { model | assetFormYield = str } ! []
+
+        AssetFormSubmitted ->
+            let
+                maturityResult =
+                    Date.fromIsoString model.assetFormMaturity
+
+                amountResult =
+                    String.toFloat model.assetFormAmount
+
+                yieldResult =
+                    String.toFloat model.assetFormYield
+
+                withAsset asset =
+                    List.sortWith
+                        (\a1 a2 -> Date.compare a1.maturity a2.maturity)
+                        (asset :: model.assets)
+            in
+            case ( maturityResult, amountResult, yieldResult ) of
+                ( Ok maturity, Ok amount, Ok yield ) ->
+                    let
+                        newModel =
+                            { model
+                                | assets = withAsset (Asset maturity amount (yield / 100))
+                                , assetFormMaturity = ""
+                                , assetFormAmount = ""
+                                , assetFormYield = ""
+                            }
+                    in
+                    newModel ! [ storeModel (encodeModel newModel) ]
+
+                _ ->
+                    model ! []
+
+        AssetDoubleClicked i ->
+            let
+                newModel =
+                    { model | assets = List.removeAt i model.assets }
             in
             newModel ! [ storeModel (encodeModel newModel) ]

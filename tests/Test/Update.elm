@@ -174,3 +174,150 @@ interestDoubleClicked =
             model1
                 |> update (InterestDoubleClicked 1)
                 |> equal (model2 ! [ storeModel (encodeModel model2) ])
+
+
+assetFormMaturityInput : Test
+assetFormMaturityInput =
+    test "sets the assetFormMaturity field to message value" <|
+        \() ->
+            let
+                model1 =
+                    { model0 | assetFormMaturity = "some-maturity" }
+            in
+            model0
+                |> update (AssetFormMaturityInput "some-maturity")
+                |> equal (model1 ! [])
+
+
+assetFormAmountInput : Test
+assetFormAmountInput =
+    test "sets the assetFormAmount field to message value" <|
+        \() ->
+            let
+                model1 =
+                    { model0 | assetFormAmount = "some-amount" }
+            in
+            model0
+                |> update (AssetFormAmountInput "some-amount")
+                |> equal (model1 ! [])
+
+
+assetFormYieldInput : Test
+assetFormYieldInput =
+    test "sets the assetFormYield field to message value" <|
+        \() ->
+            let
+                model1 =
+                    { model0 | assetFormYield = "some-yield" }
+            in
+            model0
+                |> update (AssetFormYieldInput "some-yield")
+                |> equal (model1 ! [])
+
+
+assetFormSubmitted : Test
+assetFormSubmitted =
+    describe "AssetFormSubmitted"
+        [ test "creates asset when inputs are valid" <|
+            \() ->
+                let
+                    model1 =
+                        { model0
+                            | assets =
+                                [ Asset (Date.fromCalendarDate 2018 Date.Jan 10) 123 1.205
+                                , Asset (Date.fromCalendarDate 2018 Date.Jan 12) 123 1.205
+                                ]
+                            , assetFormMaturity = ""
+                            , assetFormAmount = ""
+                            , assetFormYield = ""
+                        }
+
+                    model2 =
+                        { model1
+                            | assets =
+                                [ Asset (Date.fromCalendarDate 2018 Date.Jan 10) 123 1.205
+                                , Asset (Date.fromCalendarDate 2018 Date.Jan 11) 123 1.205
+                                , Asset (Date.fromCalendarDate 2018 Date.Jan 12) 123 1.205
+                                ]
+                        }
+                in
+                model1
+                    |> (update (AssetFormMaturityInput "2018-01-11") >> first)
+                    |> (update (AssetFormAmountInput "123") >> first)
+                    |> (update (AssetFormYieldInput "120.5") >> first)
+                    |> update AssetFormSubmitted
+                    |> equal (model2 ! [ storeModel (encodeModel model2) ])
+        , test "performs no operation when maturity input is invalid" <|
+            \() ->
+                let
+                    model1 =
+                        { model0
+                            | assetFormMaturity = "invalid"
+                            , assetFormAmount = "123"
+                            , assetFormYield = "120.5"
+                        }
+                in
+                model0
+                    |> (update (AssetFormMaturityInput "invalid") >> first)
+                    |> (update (AssetFormAmountInput "123") >> first)
+                    |> (update (AssetFormYieldInput "120.5") >> first)
+                    |> update AssetFormSubmitted
+                    |> equal (model1 ! [])
+        , test "performs no operation when amount input is invalid" <|
+            \() ->
+                let
+                    model1 =
+                        { model0
+                            | assetFormMaturity = "2018-01-11"
+                            , assetFormAmount = "invalid"
+                            , assetFormYield = "120.5"
+                        }
+                in
+                model0
+                    |> (update (AssetFormMaturityInput "2018-01-11") >> first)
+                    |> (update (AssetFormAmountInput "invalid") >> first)
+                    |> (update (AssetFormYieldInput "120.5") >> first)
+                    |> update AssetFormSubmitted
+                    |> equal (model1 ! [])
+        , test "performs no operation when yield input is invalid" <|
+            \() ->
+                let
+                    model1 =
+                        { model0
+                            | assetFormMaturity = "2018-01-11"
+                            , assetFormAmount = "123"
+                            , assetFormYield = "invalid"
+                        }
+                in
+                model0
+                    |> (update (AssetFormMaturityInput "2018-01-11") >> first)
+                    |> (update (AssetFormAmountInput "123") >> first)
+                    |> (update (AssetFormYieldInput "invalid") >> first)
+                    |> update AssetFormSubmitted
+                    |> equal (model1 ! [])
+        ]
+
+
+assetDoubleClicked : Test
+assetDoubleClicked =
+    test "removes index from the assets list and persists model" <|
+        \() ->
+            let
+                asset0 =
+                    Asset (Date.fromCalendarDate 2018 Date.Jan 10) 12.12 1.2
+
+                asset1 =
+                    Asset (Date.fromCalendarDate 2019 Date.Feb 11) 13.13 1.3
+
+                asset2 =
+                    Asset (Date.fromCalendarDate 2020 Date.Mar 12) 14.14 1.4
+
+                model1 =
+                    { model0 | assets = [ asset0, asset1, asset2 ] }
+
+                model2 =
+                    { model1 | assets = [ asset0, asset2 ] }
+            in
+            model1
+                |> update (AssetDoubleClicked 1)
+                |> equal (model2 ! [ storeModel (encodeModel model2) ])
