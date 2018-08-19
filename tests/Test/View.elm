@@ -114,3 +114,43 @@ assetsTable =
                         , has [ text "780.00%" ]
                         ]
         ]
+
+
+assetForm : Test
+assetForm =
+    let
+        form =
+            view
+                { model0
+                    | assetFormMaturity = "some-maturity"
+                    , assetFormAmount = "some-amount"
+                    , assetFormYield = "some-yield"
+                }
+                |> fromHtml
+                |> find [ id "asset-form" ]
+    in
+    describe "asset form"
+        [ test "shows the maturity input with value from model" <|
+            \() ->
+                form
+                    |> findAll [ tag "input" ]
+                    |> index 0
+                    |> has [ attribute (value "some-maturity") ]
+        , test "shows the amount input with value from model" <|
+            \() ->
+                form
+                    |> findAll [ tag "input" ]
+                    |> index 1
+                    |> has [ attribute (value "some-amount") ]
+        , test "shows the yield input with value from model" <|
+            \() ->
+                form
+                    |> findAll [ tag "input" ]
+                    |> index 2
+                    |> has [ attribute (value "some-yield") ]
+        , test "shows submit button" <|
+            \() ->
+                form
+                    |> find [ tag "button" ]
+                    |> has [ text "Add" ]
+        ]

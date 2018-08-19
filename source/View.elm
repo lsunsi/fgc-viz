@@ -4,8 +4,18 @@ import Html exposing (Html, button, div, input, table, tbody, td, text, th, thea
 import Html.Attributes exposing (class, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onDoubleClick, onInput)
 import Model exposing (Model)
-import Update exposing (Msg(InterestDoubleClicked, InterestFormDateInput, InterestFormRateInput, InterestFormSubmitted))
+import Update exposing (Msg(..))
 import View.Helpers.Format as Format
+
+
+control : Html Msg -> Html Msg
+control el =
+    div [ class "control" ] [ el ]
+
+
+textInput : String -> String -> (String -> Msg) -> Html Msg
+textInput k v m =
+    input [ placeholder k, value v, type_ "text", class "input is-small", onInput m ] []
 
 
 interestTableHeader : Html msg
@@ -42,13 +52,6 @@ interestTable model =
 
 interestForm : Model -> Html Msg
 interestForm { interestFormDate, interestFormRate } =
-    let
-        control el =
-            div [ class "control" ] [ el ]
-
-        textInput k v m =
-            input [ placeholder k, value v, type_ "text", class "input is-small", onInput m ] []
-    in
     div [ id "interest-form" ]
         [ div [ class "field has-addons" ]
             [ control (textInput "Date" interestFormDate InterestFormDateInput)
@@ -62,9 +65,9 @@ assetsTableHeader : Html msg
 assetsTableHeader =
     thead []
         [ tr []
-            [ th [] [ text "Yield" ]
+            [ th [] [ text "Maturity" ]
             , th [] [ text "Amount" ]
-            , th [] [ text "Maturity" ]
+            , th [] [ text "Yield" ]
             ]
         ]
 
@@ -92,6 +95,18 @@ assetsTable model =
         ]
 
 
+assetForm : Model -> Html Msg
+assetForm { assetFormMaturity, assetFormAmount, assetFormYield } =
+    div [ id "asset-form" ]
+        [ div [ class "field has-addons" ]
+            [ control (textInput "Maturity" assetFormMaturity AssetFormMaturityInput)
+            , control (textInput "Amount" assetFormAmount AssetFormAmountInput)
+            , control (textInput "Yield" assetFormYield AssetFormYieldInput)
+            , control (button [ class "button is-small", onClick AssetFormSubmitted ] [ text "Add" ])
+            ]
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div []
@@ -99,4 +114,5 @@ view model =
         , interestTable model
         , interestForm model
         , assetsTable model
+        , assetForm model
         ]
