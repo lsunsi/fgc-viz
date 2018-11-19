@@ -1,12 +1,14 @@
-module Update exposing (Msg, update)
+module Update exposing (Msg(..), update)
 
 import Model exposing (Model)
 
 
-type alias Msg =
-    ()
+type Msg
+    = AssetsInputChanged String
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    ( model, Cmd.none )
+    case msg of
+        AssetsInputChanged text ->
+            ( { model | assetsInput = text }, Cmd.none )

@@ -6,4 +6,4 @@ import Update exposing (Msg)
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( (), Cmd.none )
+    ( Model "", Cmd.none )
