@@ -1,7 +1,18 @@
 module Main exposing (main)
 
-import Html exposing (Html, text)
+import Browser exposing (document)
+import Init exposing (init)
+import Model exposing (Model)
+import Subs exposing (subs)
+import Update exposing (Msg, update)
+import View exposing (view)
 
 
+main : Program () Model Msg
 main =
-    text "oie mundo"
+    document
+        { view = view
+        , init = init
+        , update = update
+        , subscriptions = subs
+        }
