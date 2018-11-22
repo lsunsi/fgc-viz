@@ -6,4 +6,8 @@ import Update exposing (Msg)
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Model "", Cmd.none )
+    ( { assetsInput = ""
+      , assets = []
+      }
+    , Cmd.none
+    )
