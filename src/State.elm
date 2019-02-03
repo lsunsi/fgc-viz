@@ -1,19 +1,27 @@
 module State exposing (Msg, init, update)
 
-import Model exposing (Model)
+import Api exposing (fetchRates)
+import Http
+import Model exposing (DateRate, Model)
 
 
 type Msg
-    = NoOp
+    = GotRates (Maybe (List DateRate))
 
 
 init : () -> ( Model, Cmd Msg )
 init () =
-    ( {}, Cmd.none )
+    ( { rates = []
+      }
+    , fetchRates GotRates
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
-            ( model, Cmd.none )
+        GotRates (Just rates) ->
+            ( { model | rates = rates }, Cmd.none )
+
+        GotRates Nothing ->
+            ( { model | rates = [] }, Cmd.none )

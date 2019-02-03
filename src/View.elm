@@ -1,10 +1,20 @@
 module View exposing (view)
 
-import Html exposing (Html, text)
+import Date
+import Html exposing (Html, div, table, td, text, tr)
 import Model exposing (Model)
 import State exposing (Msg)
 
 
 view : Model -> Html Msg
-view _ =
-    text "oie mundo"
+view model =
+    table []
+        (List.map
+            (\{ date, rate } ->
+                tr []
+                    [ td [] [ text (Date.toIsoString date) ]
+                    , td [] [ text (String.fromFloat rate) ]
+                    ]
+            )
+            model.rates
+        )
