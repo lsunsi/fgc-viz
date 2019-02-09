@@ -1,17 +1,21 @@
-module State exposing (Msg, init, update)
+module State exposing (Msg(..), init, update)
 
-import Api exposing (fetchRates)
+import Api exposing (decodeAssets, fetchRates)
 import Http
 import Model exposing (DateRate, Model)
 
 
 type Msg
     = GotRates (Maybe (List DateRate))
+    | AssetsInputChanged String
+    | AssetsInputSubmit
 
 
 init : () -> ( Model, Cmd Msg )
 init () =
     ( { rates = []
+      , assets = []
+      , assetsInput = ""
       }
     , fetchRates GotRates
     )
@@ -25,3 +29,9 @@ update msg model =
 
         GotRates Nothing ->
             ( { model | rates = [] }, Cmd.none )
+
+        AssetsInputChanged str ->
+            ( { model | assetsInput = str }, Cmd.none )
+
+        AssetsInputSubmit ->
+            ( { model | assets = Result.withDefault [] (decodeAssets model.assetsInput) }, Cmd.none )

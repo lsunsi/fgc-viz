@@ -1,9 +1,10 @@
-module Api exposing (fetchRates)
+module Api exposing (decodeAssets, fetchRates)
 
 import Char
 import Date exposing (Date)
 import Http
-import Model exposing (DateRate)
+import Json.Decode as D
+import Model exposing (Asset, DateRate)
 import Parser as P exposing ((|.), (|=), Parser)
 import Set
 
@@ -90,3 +91,45 @@ fetchRates msg =
                     >> msg
                 )
         }
+
+
+decimalDecoder : D.Decoder Float
+decimalDecoder =
+    D.oneOf
+        [ D.float
+        , D.andThen
+            (String.toFloat
+                >> Maybe.map D.succeed
+                >> Maybe.withDefault (D.fail ":(")
+            )
+            D.string
+        ]
+
+
+dateDecoder : D.Decoder Date
+dateDecoder =
+    D.andThen
+        (Date.fromIsoString
+            >> Result.map D.succeed
+            >> Result.withDefault (D.fail ":(")
+        )
+        D.string
+
+
+assetsDecoder : D.Decoder (List Asset)
+assetsDecoder =
+    let
+        assetDecoder =
+            D.map4 Asset
+                (D.field "name" D.string)
+                (D.field "amount" decimalDecoder)
+                (D.field "yield" decimalDecoder)
+                (D.field "maturity_date" dateDecoder)
+    in
+    D.list (D.field "assets" (D.list (D.maybe assetDecoder)))
+        |> D.map (List.concatMap (List.filterMap identity))
+
+
+decodeAssets : String -> Result D.Error (List Asset)
+decodeAssets =
+    D.decodeString assetsDecoder
