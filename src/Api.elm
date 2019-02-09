@@ -75,7 +75,7 @@ ratesParser date =
         }
 
 
-fetchRates : (Maybe (List DateRate) -> msg) -> Cmd msg
+fetchRates : (Maybe ( Date, List DateRate ) -> msg) -> Cmd msg
 fetchRates msg =
     Http.get
         { url = "https://cors-anywhere.herokuapp.com/http://www2.bmf.com.br/pages/portal/bmfbovespa/boletim1/TxRef1.asp"
@@ -85,7 +85,10 @@ fetchRates msg =
                     >> Maybe.andThen
                         (\str ->
                             P.run referenceDateParser str
-                                |> Result.andThen (\date -> P.run (ratesParser date) str)
+                                |> Result.andThen
+                                    (\date ->
+                                        P.run (ratesParser date) str |> Result.map (Tuple.pair date)
+                                    )
                                 |> Result.toMaybe
                         )
                     >> msg
