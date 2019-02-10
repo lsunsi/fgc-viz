@@ -2,6 +2,7 @@ module View exposing (view)
 
 import Date exposing (Date)
 import Html exposing (Html, button, div, table, td, text, textarea, tr)
+import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
 import LineChart as Chart
 import LineChart.Colors as Colors
@@ -20,17 +21,30 @@ view model =
             ]
         , table []
             (List.map
-                (\{ name, amount, yield, maturity } ->
-                    tr []
-                        [ td [] [ text name ]
-                        , td [] [ text (String.fromFloat amount) ]
-                        , td [] [ text (String.fromFloat yield) ]
-                        , td [] [ text (Date.toIsoString maturity) ]
+                (\asset ->
+                    let
+                        fontWeight =
+                            model.selectedAsset
+                                |> Maybe.andThen
+                                    (\selectedAsset ->
+                                        if selectedAsset == asset then
+                                            Just "bold"
+
+                                        else
+                                            Nothing
+                                    )
+                                |> Maybe.withDefault "normal"
+                    in
+                    tr [ onClick (AssetSelected asset), Attr.style "font-weight" fontWeight ]
+                        [ td [] [ text asset.name ]
+                        , td [] [ text (String.fromFloat asset.amount) ]
+                        , td [] [ text (String.fromFloat asset.yield) ]
+                        , td [] [ text (Date.toIsoString asset.maturity) ]
                         ]
                 )
                 model.assets
             )
-        , case ( model.today, List.head model.assets ) of
+        , case ( model.today, model.selectedAsset ) of
             ( Just today, Just asset ) ->
                 let
                     curve =

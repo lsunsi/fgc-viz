@@ -3,13 +3,14 @@ module State exposing (Msg(..), init, update)
 import Api exposing (decodeAssets, fetchRates)
 import Date exposing (Date)
 import Http
-import Model exposing (DateRate, Model)
+import Model exposing (Asset, DateRate, Model)
 
 
 type Msg
     = GotRates (Maybe ( Date, List DateRate ))
     | AssetsInputChanged String
     | AssetsInputSubmit
+    | AssetSelected Asset
 
 
 init : () -> ( Model, Cmd Msg )
@@ -17,6 +18,7 @@ init () =
     ( { rates = []
       , assets = []
       , assetsInput = ""
+      , selectedAsset = Nothing
       , today = Nothing
       }
     , fetchRates GotRates
@@ -36,4 +38,12 @@ update msg model =
             ( { model | assetsInput = str }, Cmd.none )
 
         AssetsInputSubmit ->
-            ( { model | assets = Result.withDefault [] (decodeAssets model.assetsInput) }, Cmd.none )
+            ( { model
+                | assets = Result.withDefault [] (decodeAssets model.assetsInput)
+                , selectedAsset = Nothing
+              }
+            , Cmd.none
+            )
+
+        AssetSelected asset ->
+            ( { model | selectedAsset = Just asset }, Cmd.none )

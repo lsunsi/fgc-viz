@@ -21,5 +21,6 @@ type alias Model =
     { rates : List DateRate
     , assets : List Asset
     , assetsInput : String
+    , selectedAsset : Maybe Asset
     , today : Maybe Date
     }
