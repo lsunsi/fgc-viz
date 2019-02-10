@@ -58,11 +58,19 @@ view model =
         , case model.today of
             Just today ->
                 let
-                    curve =
+                    assetsCurve =
                         Simulation.assetsCurve today model.assets model.rates
                             |> List.indexedMap (toFloat >> Tuple.pair)
+
+                    limitCurve =
+                        List.repeat (List.length assetsCurve) 1000000.0
+                            |> List.indexedMap (toFloat >> Tuple.pair)
                 in
-                Chart.view Tuple.first Tuple.second [ Chart.line Colors.teal Dots.none "group" curve ]
+                Chart.view Tuple.first
+                    Tuple.second
+                    [ Chart.line Colors.teal Dots.none "group" assetsCurve
+                    , Chart.line Colors.red Dots.none "limit" limitCurve
+                    ]
 
             Nothing ->
                 text "no simulation :("
