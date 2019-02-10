@@ -55,6 +55,17 @@ view model =
 
             _ ->
                 text "no simulation :("
+        , case model.today of
+            Just today ->
+                let
+                    curve =
+                        Simulation.assetsCurve today model.assets model.rates
+                            |> List.indexedMap (toFloat >> Tuple.pair)
+                in
+                Chart.view Tuple.first Tuple.second [ Chart.line Colors.teal Dots.none "group" curve ]
+
+            Nothing ->
+                text "no simulation :("
         , table []
             (List.map
                 (\{ date, rate } ->
