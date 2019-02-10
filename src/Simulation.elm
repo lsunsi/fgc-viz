@@ -31,14 +31,14 @@ assetCurve : Date -> Asset -> List DateRate -> List Float
 assetCurve today asset rates =
     let
         dailyRate =
-            (chooseRate asset rates / 100 + 1) ^ (1.0 / 252)
+            (chooseRate asset rates / 100 + 1) ^ (1.0 / 252) - 1
     in
     List.reverse
         (List.foldr
             (\_ acc ->
                 case List.head acc of
                     Just amount ->
-                        (amount * dailyRate) :: acc
+                        (amount * (dailyRate * asset.yield + 1)) :: acc
 
                     Nothing ->
                         [ asset.amount ]
