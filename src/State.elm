@@ -18,7 +18,6 @@ init () =
     ( { rates = []
       , assets = []
       , assetsInput = ""
-      , selectedAsset = Nothing
       , today = Nothing
       }
     , fetchRates GotRates
@@ -39,11 +38,26 @@ update msg model =
 
         AssetsInputSubmit ->
             ( { model
-                | assets = Result.withDefault [] (decodeAssets model.assetsInput)
-                , selectedAsset = Nothing
+                | assets =
+                    List.map
+                        (\asset -> ( asset, False ))
+                        (Result.withDefault [] (decodeAssets model.assetsInput))
               }
             , Cmd.none
             )
 
         AssetSelected asset ->
-            ( { model | selectedAsset = Just asset }, Cmd.none )
+            ( { model
+                | assets =
+                    List.map
+                        (\( item, selected ) ->
+                            if asset == item then
+                                ( item, not selected )
+
+                            else
+                                ( item, selected )
+                        )
+                        model.assets
+              }
+            , Cmd.none
+            )

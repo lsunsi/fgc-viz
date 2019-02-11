@@ -1,4 +1,4 @@
-module Simulation exposing (assetCurve, assetsCurve)
+module Simulation exposing (simulate)
 
 import Date exposing (Date)
 import List.Extra as List
@@ -28,29 +28,8 @@ workdays start end =
         (Date.range Date.Day 1 start end)
 
 
-assetCurve : Date -> Asset -> List DateRate -> List Float
-assetCurve today asset rates =
-    let
-        dailyRate =
-            (chooseRate asset.maturity rates / 100 + 1) ^ (1.0 / 252) - 1
-    in
-    List.reverse
-        (List.foldr
-            (\_ acc ->
-                case List.head acc of
-                    Just amount ->
-                        (amount * (dailyRate * asset.yield + 1)) :: acc
-
-                    Nothing ->
-                        [ asset.amount ]
-            )
-            []
-            (workdays today asset.maturity)
-        )
-
-
-assetsCurve : Date -> List Asset -> List DateRate -> List Float
-assetsCurve today initialAssets rates =
+simulate : Date -> List Asset -> List DateRate -> List Float
+simulate today initialAssets rates =
     let
         sortedInitialAssets =
             List.sortWith (\a1 a2 -> Date.compare a1.maturity a2.maturity) initialAssets

@@ -7,6 +7,7 @@ import Html.Events exposing (onClick, onInput)
 import LineChart as Chart
 import LineChart.Colors as Colors
 import LineChart.Dots as Dots
+import List.Extra as List
 import Model exposing (Model)
 import Simulation
 import State exposing (Msg(..))
@@ -21,19 +22,14 @@ view model =
             ]
         , table []
             (List.map
-                (\asset ->
+                (\( asset, selected ) ->
                     let
                         fontWeight =
-                            model.selectedAsset
-                                |> Maybe.andThen
-                                    (\selectedAsset ->
-                                        if selectedAsset == asset then
-                                            Just "bold"
+                            if selected then
+                                "bold"
 
-                                        else
-                                            Nothing
-                                    )
-                                |> Maybe.withDefault "normal"
+                            else
+                                "normal"
                     in
                     tr [ onClick (AssetSelected asset), Attr.style "font-weight" fontWeight ]
                         [ td [] [ text asset.name ]
@@ -44,22 +40,14 @@ view model =
                 )
                 model.assets
             )
-        , case ( model.today, model.selectedAsset ) of
-            ( Just today, Just asset ) ->
-                let
-                    curve =
-                        Simulation.assetCurve today asset model.rates
-                            |> List.indexedMap (toFloat >> Tuple.pair)
-                in
-                Chart.view Tuple.first Tuple.second [ Chart.line Colors.cyan Dots.none asset.name curve ]
-
-            _ ->
-                text "no simulation :("
         , case model.today of
             Just today ->
                 let
+                    selectedAssets =
+                        List.map Tuple.first (List.filter Tuple.second model.assets)
+
                     assetsCurve =
-                        Simulation.assetsCurve today model.assets model.rates
+                        Simulation.simulate today selectedAssets model.rates
                             |> List.indexedMap (toFloat >> Tuple.pair)
 
                     limitCurve =
@@ -68,9 +56,7 @@ view model =
                 in
                 Chart.view Tuple.first
                     Tuple.second
-                    [ Chart.line Colors.teal Dots.none "group" assetsCurve
-                    , Chart.line Colors.red Dots.none "limit" limitCurve
-                    ]
+                    [ Chart.line Colors.teal Dots.none "portfolio" assetsCurve ]
 
             Nothing ->
                 text "no simulation :("

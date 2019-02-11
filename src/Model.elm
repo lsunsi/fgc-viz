@@ -19,8 +19,7 @@ type alias Asset =
 
 type alias Model =
     { rates : List DateRate
-    , assets : List Asset
+    , assets : List ( Asset, Bool )
     , assetsInput : String
-    , selectedAsset : Maybe Asset
     , today : Maybe Date
     }
