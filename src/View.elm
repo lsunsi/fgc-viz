@@ -1,5 +1,6 @@
 module View exposing (view)
 
+import Array
 import Date exposing (Date)
 import Html exposing (Html, button, div, table, td, text, textarea, tr)
 import Html.Attributes as Attr
@@ -58,10 +59,23 @@ view model =
 
                     assetsCurves =
                         List.transpose (Simulation.simulate today selectedAssets model.rates)
-                            |> List.map (List.indexedMap (toFloat >> Tuple.pair))
+                            |> List.map (List.indexedMap Tuple.pair)
+
+                    colors =
+                        Array.fromList
+                            [ Colors.pink
+                            , Colors.blue
+                            , Colors.gold
+                            , Colors.red
+                            , Colors.green
+                            , Colors.cyan
+                            , Colors.teal
+                            , Colors.purple
+                            , Colors.rust
+                            ]
                 in
                 Chart.viewCustom
-                    { x = Axis.default 700 "workdays" Tuple.first
+                    { x = Axis.default 700 "workdays" (Tuple.first >> toFloat)
                     , y = Axis.default 400 "amount" (Tuple.second >> .amount)
                     , container = Container.default "line-chart-1"
                     , interpolation = Interpolation.default
@@ -74,15 +88,19 @@ view model =
                     , line = Line.default
                     , dots = Dots.default
                     }
-                    (List.map
-                        (\curve ->
+                    (List.indexedMap
+                        (\i curve ->
                             let
                                 name =
                                     List.head curve
                                         |> Maybe.map (Tuple.second >> .name)
                                         |> Maybe.withDefault "none"
+
+                                color =
+                                    Array.get (remainderBy (Array.length colors) i) colors
+                                        |> Maybe.withDefault Colors.black
                             in
-                            Chart.line Colors.teal Dots.none name curve
+                            Chart.line color Dots.none name curve
                         )
                         assetsCurves
                     )
