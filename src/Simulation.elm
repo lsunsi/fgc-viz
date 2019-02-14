@@ -28,7 +28,7 @@ workdays start end =
         (Date.range Date.Day 1 start end)
 
 
-simulate : Date -> List Asset -> List DateRate -> List Float
+simulate : Date -> List Asset -> List DateRate -> List (List Asset)
 simulate today initialAssets rates =
     let
         sortedInitialAssets =
@@ -52,52 +52,65 @@ simulate today initialAssets rates =
         correctAssets dailyRate =
             List.map (\asset -> { asset | amount = asset.amount * (dailyRate * asset.yield + 1) })
 
+        expireAssets date =
+            List.map
+                (\asset ->
+                    { asset
+                        | amount =
+                            if Date.compare asset.maturity date == Basics.LT then
+                                0.0
+
+                            else
+                                asset.amount
+                    }
+                )
+
         assetsTotal =
             List.map .amount >> List.sum
     in
     List.unfoldr
         (\{ currentDate, currentDailyRate, currentAssets, accumulatedRate } ->
-            Maybe.map
-                (\_ ->
-                    let
-                        correctedAssets =
-                            correctAssets currentDailyRate currentAssets
+            if assetsTotal currentAssets == 0.0 then
+                Nothing
 
-                        ( expiredAssets, activeAssets ) =
-                            List.break
-                                (\asset -> Date.compare asset.maturity currentDate == Basics.GT)
-                                correctedAssets
+            else
+                let
+                    expiredAssets =
+                        expireAssets currentDate currentAssets
 
-                        nextDailyRate =
-                            case ( expiredAssets, activeAssets ) of
-                                ( [], _ ) ->
-                                    currentDailyRate
+                    correctedAssets =
+                        correctAssets currentDailyRate expiredAssets
 
-                                ( _, [] ) ->
-                                    currentDailyRate
+                    nextDailyRate =
+                        if expiredAssets == currentAssets then
+                            currentDailyRate
 
-                                ( _, { maturity } :: _ ) ->
-                                    let
-                                        dailyRate =
-                                            (chooseRate maturity rates / 100 + 1) ^ (1.0 / 252) - 1
+                        else
+                            List.find (.amount >> (/=) 0) expiredAssets
+                                |> Maybe.map
+                                    (\{ maturity } ->
+                                        let
+                                            dailyRate =
+                                                (chooseRate maturity rates / 100 + 1) ^ (1.0 / 252) - 1
 
-                                        nextDistance =
-                                            toFloat (List.length (workdays currentDate maturity))
+                                            nextDistance =
+                                                toFloat (List.length (workdays currentDate maturity))
 
-                                        totalDistance =
-                                            toFloat (List.length (workdays today maturity))
-                                    in
-                                    ((dailyRate + 1) ^ totalDistance / (accumulatedRate + 1)) ^ (1 / nextDistance) - 1
-                    in
-                    ( assetsTotal correctedAssets
+                                            totalDistance =
+                                                toFloat (List.length (workdays today maturity))
+                                        in
+                                        ((dailyRate + 1) ^ totalDistance / (accumulatedRate + 1)) ^ (1 / nextDistance) - 1
+                                    )
+                                |> Maybe.withDefault currentDailyRate
+                in
+                Just
+                    ( correctedAssets
                     , { currentDate = dateStep currentDate
                       , currentDailyRate = nextDailyRate
-                      , currentAssets = activeAssets
+                      , currentAssets = correctedAssets
                       , accumulatedRate = (accumulatedRate + 1) * (currentDailyRate + 1) - 1
                       }
                     )
-                )
-                (List.head currentAssets)
         )
         { currentDate = today
         , currentDailyRate = initialDailyRate
