@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Array
 import Date exposing (Date)
-import Html exposing (Html, button, div, table, td, text, textarea, tr)
+import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events exposing (onClick, onInput)
 import LineChart as Chart
@@ -19,7 +19,7 @@ import LineChart.Junk as Junk
 import LineChart.Legends as Legends
 import LineChart.Line as Line
 import List.Extra as List
-import Model exposing (Model)
+import Model exposing (AssetSortCriteria(..), Model)
 import Simulation
 import State exposing (Msg(..))
 
@@ -32,25 +32,35 @@ view model =
             , button [ onClick AssetsInputSubmit ] [ text "go assets" ]
             ]
         , table []
-            (List.map
-                (\( asset, selected ) ->
-                    let
-                        fontWeight =
-                            if selected then
-                                "bold"
+            [ thead []
+                [ tr []
+                    [ th [ onClick (AssetsHeaderSelected NameSort) ] [ text "name" ]
+                    , th [ onClick (AssetsHeaderSelected AmountSort) ] [ text "amount" ]
+                    , th [ onClick (AssetsHeaderSelected YieldSort) ] [ text "yield" ]
+                    , th [ onClick (AssetsHeaderSelected MaturitySort) ] [ text "maturity" ]
+                    ]
+                ]
+            , tbody []
+                (List.map
+                    (\( asset, selected ) ->
+                        let
+                            fontWeight =
+                                if selected then
+                                    "bold"
 
-                            else
-                                "normal"
-                    in
-                    tr [ onClick (AssetSelected asset), Attr.style "font-weight" fontWeight ]
-                        [ td [] [ text asset.name ]
-                        , td [] [ text (String.fromFloat asset.amount) ]
-                        , td [] [ text (String.fromFloat asset.yield) ]
-                        , td [] [ text (Date.toIsoString asset.maturity) ]
-                        ]
+                                else
+                                    "normal"
+                        in
+                        tr [ onClick (AssetSelected asset), Attr.style "font-weight" fontWeight ]
+                            [ td [] [ text asset.name ]
+                            , td [] [ text (String.fromFloat asset.amount) ]
+                            , td [] [ text (String.fromFloat asset.yield) ]
+                            , td [] [ text (Date.toIsoString asset.maturity) ]
+                            ]
+                    )
+                    model.assets
                 )
-                model.assets
-            )
+            ]
         , case model.today of
             Just today ->
                 let

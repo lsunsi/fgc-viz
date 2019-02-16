@@ -1,4 +1,4 @@
-module Model exposing (Asset, DateRate, Model)
+module Model exposing (Asset, AssetSortCriteria(..), DateRate, Model)
 
 import Date exposing (Date)
 
@@ -23,3 +23,10 @@ type alias Model =
     , assetsInput : String
     , today : Maybe Date
     }
+
+
+type AssetSortCriteria
+    = NameSort
+    | AmountSort
+    | YieldSort
+    | MaturitySort
