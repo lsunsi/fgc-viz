@@ -3,8 +3,8 @@ module View exposing (view)
 import Array
 import Date exposing (Date)
 import Html exposing (..)
-import Html.Attributes as Attr
-import Html.Events exposing (onClick, onInput)
+import Html.Attributes exposing (class, classList, style)
+import Html.Events exposing (onClick, onInput, onSubmit)
 import LineChart as Chart
 import LineChart.Area as Area
 import LineChart.Axis as Axis
@@ -24,44 +24,92 @@ import Simulation
 import State exposing (Msg(..))
 
 
-view : Model -> Html Msg
-view model =
-    div []
-        [ div []
-            [ textarea [ onInput AssetsInputChanged ] []
-            , button [ onClick AssetsInputSubmit ] [ text "go assets" ]
-            ]
-        , table []
-            [ thead []
-                [ tr []
-                    [ th [ onClick (AssetsHeaderSelected NameSort) ] [ text "name" ]
-                    , th [ onClick (AssetsHeaderSelected AmountSort) ] [ text "amount" ]
-                    , th [ onClick (AssetsHeaderSelected YieldSort) ] [ text "yield" ]
-                    , th [ onClick (AssetsHeaderSelected MaturitySort) ] [ text "maturity" ]
+controlsView : Model -> Html Msg
+controlsView model =
+    div [ class "column is-one-quarter" ]
+        [ div [ class "box" ]
+            [ div [ class "title is-4" ] [ text "Assets" ]
+            , form [ onSubmit AssetsInputSubmit ]
+                [ div [ class "field has-addons" ]
+                    [ div [ class "control is-expanded" ]
+                        [ input [ onInput AssetsInputChanged, class "input" ] []
+                        ]
+                    , div [ class "control" ]
+                        [ button [ class "button" ] [ text "load" ]
+                        ]
                     ]
                 ]
-            , tbody []
-                (List.map
-                    (\( asset, selected ) ->
-                        let
-                            fontWeight =
-                                if selected then
-                                    "bold"
-
-                                else
-                                    "normal"
-                        in
-                        tr [ onClick (AssetSelected asset), Attr.style "font-weight" fontWeight ]
-                            [ td [] [ text asset.name ]
-                            , td [] [ text (String.fromFloat asset.amount) ]
-                            , td [] [ text (String.fromFloat asset.yield) ]
-                            , td [] [ text (Date.toIsoString asset.maturity) ]
+            , table [ class "table is-fullwidth is-hoverable" ]
+                [ thead []
+                    [ tr []
+                        [ th
+                            [ onClick (AssetsHeaderSelected NameSort)
+                            , style "cursor" "pointer"
                             ]
+                            [ text "name" ]
+                        , th
+                            [ onClick (AssetsHeaderSelected MaturitySort)
+                            , class "has-text-centered"
+                            , style "cursor" "pointer"
+                            ]
+                            [ text "maturity" ]
+                        , th
+                            [ onClick (AssetsHeaderSelected YieldSort)
+                            , class "has-text-right"
+                            , style "cursor" "pointer"
+                            ]
+                            [ text "yield" ]
+                        , th
+                            [ onClick (AssetsHeaderSelected AmountSort)
+                            , class "has-text-right"
+                            , style "cursor" "pointer"
+                            ]
+                            [ text "amount" ]
+                        ]
+                    ]
+                , tbody []
+                    (List.map
+                        (\( asset, selected ) ->
+                            tr
+                                [ onClick (AssetSelected asset)
+                                , classList [ ( "is-selected", selected ) ]
+                                , style "cursor" "pointer"
+                                ]
+                                [ td [] [ text asset.name ]
+                                , td [ class "has-text-centered" ] [ text (Date.toIsoString asset.maturity) ]
+                                , td [ class "has-text-right" ] [ text (String.fromFloat asset.yield) ]
+                                , td [ class "has-text-right" ] [ text (String.fromFloat asset.amount) ]
+                                ]
+                        )
+                        model.assets
                     )
-                    model.assets
-                )
+                ]
+            , table [ class "table is-fullwidth" ]
+                [ thead []
+                    [ tr []
+                        [ th [] [ text "date" ]
+                        , th [ class "has-text-right" ] [ text "yearly rate" ]
+                        ]
+                    ]
+                , tbody []
+                    (List.map
+                        (\{ date, rate } ->
+                            tr []
+                                [ td [] [ text (Date.toIsoString date) ]
+                                , td [ class "has-text-right" ] [ text (String.fromFloat rate) ]
+                                ]
+                        )
+                        model.rates
+                    )
+                ]
             ]
-        , case model.today of
+        ]
+
+
+chartView : Model -> Html Msg
+chartView model =
+    div [ class "column" ]
+        [ case model.today of
             Just today ->
                 let
                     selectedAssets =
@@ -85,9 +133,16 @@ view model =
                             ]
                 in
                 Chart.viewCustom
-                    { x = Axis.default 700 "workdays" (Tuple.first >> toFloat)
-                    , y = Axis.default 400 "amount" (Tuple.second >> .amount)
-                    , container = Container.default "line-chart-1"
+                    { x = Axis.default 1400 "workdays" (Tuple.first >> toFloat)
+                    , y = Axis.default 800 "amount" (Tuple.second >> .amount)
+                    , container =
+                        Container.custom
+                            { id = "line-chart-1"
+                            , size = Container.relative
+                            , attributesSvg = []
+                            , attributesHtml = []
+                            , margin = Container.Margin 5 90 25 90
+                            }
                     , interpolation = Interpolation.default
                     , intersection = Intersection.default
                     , legends = Legends.default
@@ -117,14 +172,12 @@ view model =
 
             Nothing ->
                 text "no simulation :("
-        , table []
-            (List.map
-                (\{ date, rate } ->
-                    tr []
-                        [ td [] [ text (Date.toIsoString date) ]
-                        , td [] [ text (String.fromFloat rate) ]
-                        ]
-                )
-                model.rates
-            )
+        ]
+
+
+view : Model -> Html Msg
+view model =
+    section
+        [ class "section" ]
+        [ div [ class "columns" ] [ controlsView model, chartView model ]
         ]
